@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<entity-mappings
+        xmlns="http://java.sun.com/xml/ns/persistence/orm"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://java.sun.com/xml/ns/persistence/orm http://java.sun.com/xml/ns/persistence/orm_2_0.xsd"
+        version="2.0">
+
+    <named-native-query name="Relation.getUpperRelationsByCompanyIdAndEmployee">
+        <query>
+            WITH RECURSIVE get_supervisors(rel_id, empl, sup)AS (
+                SELECT ur.id, ur.employee, ur.supervisor FROM user_relation ur
+                WHERE ur.employee like :employeeName AND ur.company_id = :companyId AND is_deleted = false
+                UNION ALL
+                SELECT ur.id, ur.employee, ur.supervisor
+                FROM get_supervisors s
+                         INNER JOIN user_relation ur ON ur.employee like s.sup
+                WHERE ur.company_id = :companyId AND is_deleted = false
+            )
+            SELECT CAST(sup.rel_id as varchar) id, sup.empl as employee, sup.sup as supervisor FROM get_supervisors sup</query>
+    </named-native-query>
+</entity-mappings>
+
+
